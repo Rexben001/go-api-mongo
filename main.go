@@ -21,6 +21,22 @@ type Person struct {
 	Lastname  string             `json:"lastname,omitempty" bson:"lastname,omitempty"`
 }
 
+var client *mongo.Client
+
+func AddPerson(response http.ResponseWriter, request *http.Request) {
+	response.Header().Add("content-type", "application/json")
+	var person Person
+
+	// get the body request and decode it
+	json.NewDecoder(request.Body).Decode(&person)
+
+	collection := client.Database("peoplerex").Collection("people")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, _ := collection.InsertOne(ctx, person)
+	json.NewEncoder(response).Encode(result)
+}
 func main() {
 	fmt.Println("App has started!!!!")
 	// define timeout for Mongo and Go
