@@ -37,6 +37,39 @@ func AddPerson(response http.ResponseWriter, request *http.Request) {
 	result, _ := collection.InsertOne(ctx, person)
 	json.NewEncoder(response).Encode(result)
 }
+func GetPeople(response http.ResponseWriter, request *http.Request) {
+	response.Header().Add("content-type", "application/json")
+	var people []Person
+
+	collection := client.Database("peoplerex").Collection("people")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	// get all the items from the collection
+	cursor, err := collection.Find(ctx, bson.M{})
+
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"message": "` + err.Error() + `"}`))
+		return
+	}
+
+	defer cursor.Close(ctx)
+
+	// iterate over the cursor and save the results as array
+	for cursor.Next(ctx) {
+		var person Person
+		cursor.Decode(&person)
+		people = append(people, person)
+	}
+	// handle error
+	if err := cursor.Err(); err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"message": "` + err.Error() + `"}`))
+		return
+	}
+	json.NewEncoder(response).Encode(people)
+
+}
 func main() {
 	fmt.Println("App has started!!!!")
 	// define timeout for Mongo and Go
