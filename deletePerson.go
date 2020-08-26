@@ -38,6 +38,10 @@ func DeletePerson(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte(`{"message": "Unable to delete item"}`))
 		return
 	}
-	response.WriteHeader(http.StatusNoContent)
-	json.NewEncoder(response).Encode(result.DeletedCount)
+	finalResult := make(map[string]interface{})
+
+	finalResult["message"] = "Person deleted successfully"
+	finalResult["status"] = 200
+	finalResult["success"] = true
+	json.NewEncoder(response).Encode(finalResult)
 }

@@ -10,11 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type InsertOneResult struct {
-	// The identifier that was inserted.
-	InsertedID interface{}
-}
-type ObjectID [12]byte
 
 func AddPerson(response http.ResponseWriter, request *http.Request) {
 
@@ -43,12 +38,13 @@ func AddPerson(response http.ResponseWriter, request *http.Request) {
 	if oid, ok := result.InsertedID.(primitive.ObjectID); ok {
 		id = oid.Hex()
 	}
-	finalResult := make(map[string]string)
+
+	finalResult := make(map[string]interface{})
 
 	finalResult["message"] = "New person added successfully"
 	finalResult["InsertedId"] = id
-	finalResult["status"] = "200"
-	finalResult["success"] = "True"
+	finalResult["status"] = 201
+	finalResult["success"] = true
 
 	// writes the objects to standard output
 	json.NewEncoder(response).Encode(finalResult)

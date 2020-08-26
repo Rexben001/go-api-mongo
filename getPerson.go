@@ -32,5 +32,13 @@ func GetPerson(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte(`{"message": "` + err.Error() + `"}`))
 		return
 	}
-	json.NewEncoder(response).Encode(person)
+
+	finalResult := make(map[string]interface{})
+
+	finalResult["message"] = "Person fetched successfully"
+	finalResult["status"] = 200
+	finalResult["success"] = true
+	finalResult["data"] = person
+
+	json.NewEncoder(response).Encode(finalResult)
 }

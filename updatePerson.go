@@ -35,5 +35,15 @@ func UpdatePerson(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte(`{"message": "` + err.Error() + `"}`))
 		return
 	}
-	json.NewEncoder(response).Encode(result)
+
+	if result.ModifiedCount == 0 {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"message": "Unable to update item"}`))
+		return
+	}
+	finalResult := make(map[string]interface{})
+	finalResult["message"] = "Person updated successfully"
+	finalResult["status"] = 201
+	finalResult["success"] = true
+	json.NewEncoder(response).Encode(finalResult)
 }
