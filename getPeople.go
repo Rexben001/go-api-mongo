@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,8 +13,9 @@ import (
 func GetPeople(response http.ResponseWriter, request *http.Request) {
 	response.Header().Add("content-type", "application/json")
 	var people []Person
+	database, _ := os.LookupEnv("DATABASE_NAME")
 
-	collection := client.Database("peoplerex").Collection("people")
+	collection := client.Database(database).Collection("people")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	// get all the items from the collection

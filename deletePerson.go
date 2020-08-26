@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -15,9 +16,12 @@ func DeletePerson(response http.ResponseWriter, request *http.Request) {
 	response.Header().Add("content-type", "application/json")
 	// get the params from the requst
 	params := mux.Vars(request)
+
+	database, _ := os.LookupEnv("DATABASE_NAME")
+
 	// convert params id (string) to MongoDB ID
 	id, _ := primitive.ObjectIDFromHex(params["id"])
-	collection := client.Database("peoplerex").Collection("people")
+	collection := client.Database(database).Collection("people")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	// get item by id

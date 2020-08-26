@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -14,6 +15,7 @@ import (
 func UpdatePerson(response http.ResponseWriter, request *http.Request) {
 	response.Header().Add("content-type", "application/json")
 
+	database, _ := os.LookupEnv("DATABASE_NAME")
 	var person Person
 
 	// get the body request and decode it
@@ -22,7 +24,7 @@ func UpdatePerson(response http.ResponseWriter, request *http.Request) {
 	params := mux.Vars(request)
 	// convert params id (string) to MongoDB ID
 	id, _ := primitive.ObjectIDFromHex(params["id"])
-	collection := client.Database("peoplerex").Collection("people")
+	collection := client.Database(database).Collection("people")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	// get item by id
