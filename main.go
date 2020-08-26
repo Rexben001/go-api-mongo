@@ -52,6 +52,7 @@ func main() {
 	}
 	// define router
 	router := mux.NewRouter()
+	router.HandleFunc("/", Index)
 	router.HandleFunc("/person", AddPerson).Methods("POST")
 	router.HandleFunc("/people", GetPeople).Methods("GET")
 	router.HandleFunc("/person/{id}", GetPerson).Methods("GET")
