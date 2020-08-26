@@ -34,6 +34,7 @@ func AddPerson(response http.ResponseWriter, request *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	result, err := collection.InsertOne(ctx, person)
 	if err != nil {
 		response.WriteHeader(http.StatusInternalServerError)
 		response.Write([]byte(`{"message": "` + err.Error() + `"}`))
@@ -124,6 +125,31 @@ func DeletePerson(response http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(response).Encode(result.DeletedCount)
 }
 
+func UpdatePerson(response http.ResponseWriter, request *http.Request) {
+	response.Header().Add("content-type", "application/json")
+
+	var person Person
+
+	// get the body request and decode it
+	json.NewDecoder(request.Body).Decode(&person)
+	// get the params from the requst
+	params := mux.Vars(request)
+	// convert params id (string) to MongoDB ID
+	id, _ := primitive.ObjectIDFromHex(params["id"])
+	collection := client.Database("peoplerex").Collection("people")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	// get item by id
+	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": person})
+
+	if err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
+		response.Write([]byte(`{"message": "` + err.Error() + `"}`))
+		return
+	}
+	json.NewEncoder(response).Encode(result)
+}
+
 func main() {
 	fmt.Println("App has started!!!!")
 	// define timeout for Mongo and Go
@@ -142,5 +168,6 @@ func main() {
 	router.HandleFunc("/people", GetPeople).Methods("GET")
 	router.HandleFunc("/person/{id}", GetPerson).Methods("GET")
 	router.HandleFunc("/person/{id}", DeletePerson).Methods("DELETE")
+	router.HandleFunc("/person/{id}", UpdatePerson).Methods("PUT")
 	http.ListenAndServe(":12345", router)
 }
