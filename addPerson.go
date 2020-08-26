@@ -12,6 +12,7 @@ func AddPerson(response http.ResponseWriter, request *http.Request) {
 	var person Person
 
 	// get the body request and decode it
+	//json.NewDecoder() removes all but the Name field from each object
 	json.NewDecoder(request.Body).Decode(&person)
 
 	collection := client.Database("peoplerex").Collection("people")
@@ -24,5 +25,6 @@ func AddPerson(response http.ResponseWriter, request *http.Request) {
 		response.Write([]byte(`{"message": "` + err.Error() + `"}`))
 		return
 	}
+	// writes the objects to standard output
 	json.NewEncoder(response).Encode(result)
 }
