@@ -34,6 +34,8 @@ var client *mongo.Client
 func main() {
 	fmt.Println("App has started!!!!")
 
+    port, _ := os.LookupEnv("PORT")
+
 	mongoUri, exists := os.LookupEnv("MONGO_URI")
 
 	if exists {
@@ -48,8 +50,8 @@ func main() {
 
 	if client != nil {
 		fmt.Println("Connected successfully")
-
 	}
+
 	// define router
 	router := mux.NewRouter()
 	router.HandleFunc("/", Index)
@@ -58,5 +60,5 @@ func main() {
 	router.HandleFunc("/person/{id}", GetPerson).Methods("GET")
 	router.HandleFunc("/person/{id}", DeletePerson).Methods("DELETE")
 	router.HandleFunc("/person/{id}", UpdatePerson).Methods("PUT")
-	http.ListenAndServe(":12345", router)
+	http.ListenAndServe(":"+port, router)
 }
